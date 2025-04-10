@@ -1,9 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
-    <title>PlintCalculator</title>
+  <meta charset="UTF-8">
+  <title>Plint Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f8f8f8;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label, input {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 8px;
+    }
+    button {
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #resultaat {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-   
+
+  <h2>Plint Calculator 4 Veroo</h2>
+
+  <label for="lopendeMeters">Lopende meters plint nodig:</label>
+  <input type="number" id="lopendeMeters" step="0.01">
+
+  <label for="plintHoogte">Hoogte van de plint (in cm):</label>
+  <input type="number" id="plintHoogte" step="0.01">
+
+  <label for="tegelLengte">Lengte van de tegel (in cm):</label>
+  <input type="number" id="tegelLengte" step="0.01">
+
+  <label for="tegelBreedte">Breedte van de tegel (in cm):</label>
+  <input type="number" id="tegelBreedte" step="0.01">
+
+  <button onclick="berekenTegels()">Bereken aantal tegels</button>
+
+  <div id="resultaat"></div>
+
+  <script>
+    function berekenTegels() {
+      const lm = parseFloat(document.getElementById('lopendeMeters').value);
+      const plintHoogte = parseFloat(document.getElementById('plintHoogte').value);
+      const tegelLengte = parseFloat(document.getElementById('tegelLengte').value);
+      const tegelBreedte = parseFloat(document.getElementById('tegelBreedte').value);
+
+      if (isNaN(lm) || isNaN(plintHoogte) || isNaN(tegelLengte) || isNaN(tegelBreedte)) {
+        document.getElementById('resultaat').innerText = "Vul alstublieft alle velden correct in.";
+        return;
+      }
+
+      // Aantal plinten per tegel (gerekend langs de lengtezijde van de tegel)
+      const plintenPerTegel = Math.floor(tegelLengte / plintHoogte);
+
+      if (plintenPerTegel === 0) {
+        document.getElementById('resultaat').innerText = "De plinthoogte is groter dan de tegelmaat. Kies een kleinere plint of grotere tegel.";
+        return;
+      }
+
+      // Totale lengte plint per tegel in meter
+      const plintlengtePerTegel = (plintenPerTegel * tegelBreedte) / 100; // omzetten naar meter
+
+      // Aantal benodigde tegels
+      const benodigdeTegels = Math.ceil(lm / plintlengtePerTegel);
+
+      document.getElementById('resultaat').innerText = `Je hebt ${benodigdeTegels} tegel(s) nodig. \n Je besteld er dus ${benodigdeTegels+1}`;
+    }
+  </script>
+
 </body>
 </html>
