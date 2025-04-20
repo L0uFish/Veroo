@@ -2,25 +2,50 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Plint Calculator</title>
+  <title>Calculatoren</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    header {
+      background-color: #4CAF50;
+      display: flex;
+      justify-content: center;
+    }
+
+    .tab {
+      padding: 15px 25px;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .tab:hover, .tab.active {
+      background-color: #45a049;
+    }
+
+    .container {
       max-width: 500px;
-      margin: 50px auto;
+      margin: 30px auto;
       padding: 20px;
-      background-color: #f8f8f8;
+      background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
     label, input {
       display: block;
       width: 100%;
       margin-bottom: 10px;
     }
+
     input {
       padding: 8px;
     }
+
     button {
       padding: 10px;
       width: 100%;
@@ -31,36 +56,66 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #45a049;
     }
-    #resultaat {
+
+    .resultaat {
       margin-top: 20px;
       font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h2>Plint Calculator 4 Veroo</h2>
+  <header>
+    <div class="tab active" onclick="switchTab('plint')">Plint Calculator</div>
+    <div class="tab" onclick="switchTab('doos')">Doos Calculator</div>
+  </header>
 
-  <label for="lopendeMeters">Lopende meters plint nodig:</label>
-  <input type="number" id="lopendeMeters" step="0.01">
+  <div class="container" id="plintCalculator">
+    <h2>Plint Calculator</h2>
+    <label for="lopendeMeters">Lopende meters plint nodig:</label>
+    <input type="number" id="lopendeMeters" step="0.01">
+    <label for="plintHoogte">Hoogte van de plint (in cm):</label>
+    <input type="number" id="plintHoogte" step="0.01">
+    <label for="tegelLengte">Lengte van de tegel (in cm):</label>
+    <input type="number" id="tegelLengte" step="0.01">
+    <label for="tegelBreedte">Breedte van de tegel (in cm):</label>
+    <input type="number" id="tegelBreedte" step="0.01">
+    <button onclick="berekenTegels()">Bereken aantal tegels</button>
+    <div class="resultaat" id="resultaatPlint"></div>
+  </div>
 
-  <label for="plintHoogte">Hoogte van de plint (in cm):</label>
-  <input type="number" id="plintHoogte" step="0.01">
-
-  <label for="tegelLengte">Lengte van de tegel (in cm):</label>
-  <input type="number" id="tegelLengte" step="0.01">
-
-  <label for="tegelBreedte">Breedte van de tegel (in cm):</label>
-  <input type="number" id="tegelBreedte" step="0.01">
-
-  <button onclick="berekenTegels()">Bereken aantal tegels</button>
-
-  <div id="resultaat"></div>
+  <div class="container hidden" id="doosCalculator">
+    <h2>Doos Calculator</h2>
+    <label for="m2PerDoos">Aantal m² per doos:</label>
+    <input type="number" id="m2PerDoos" step="0.01">
+    <label for="m2Nodig">Aantal m² dat je nodig hebt:</label>
+    <input type="number" id="m2Nodig" step="0.01">
+    <button onclick="berekenDozen()">Bereken aantal dozen</button>
+    <div class="resultaat" id="resultaatDoos"></div>
+  </div>
 
   <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+
+      if (tab === 'plint') {
+        document.querySelector('.tab:nth-child(1)').classList.add('active');
+        document.getElementById('plintCalculator').classList.remove('hidden');
+      } else {
+        document.querySelector('.tab:nth-child(2)').classList.add('active');
+        document.getElementById('doosCalculator').classList.remove('hidden');
+      }
+    }
+
     function berekenTegels() {
       const lm = parseFloat(document.getElementById('lopendeMeters').value);
       const plintHoogte = parseFloat(document.getElementById('plintHoogte').value);
@@ -68,25 +123,36 @@
       const tegelBreedte = parseFloat(document.getElementById('tegelBreedte').value);
 
       if (isNaN(lm) || isNaN(plintHoogte) || isNaN(tegelLengte) || isNaN(tegelBreedte)) {
-        document.getElementById('resultaat').innerText = "Vul alstublieft alle velden correct in.";
+        document.getElementById('resultaatPlint').innerText = "Vul alstublieft alle velden correct in.";
         return;
       }
 
-      // Aantal plinten per tegel (gerekend langs de lengtezijde van de tegel)
       const plintenPerTegel = Math.floor(tegelLengte / plintHoogte);
 
       if (plintenPerTegel === 0) {
-        document.getElementById('resultaat').innerText = "De plinthoogte is groter dan de tegelmaat. Kies een kleinere plint of grotere tegel.";
+        document.getElementById('resultaatPlint').innerText = "De plinthoogte is groter dan de tegelmaat.";
         return;
       }
 
-      // Totale lengte plint per tegel in meter
-      const plintlengtePerTegel = (plintenPerTegel * tegelBreedte) / 100; // omzetten naar meter
-
-      // Aantal benodigde tegels
+      const plintlengtePerTegel = (plintenPerTegel * tegelBreedte) / 100;
       const benodigdeTegels = Math.ceil(lm / plintlengtePerTegel);
 
-      document.getElementById('resultaat').innerText = `Je hebt ${benodigdeTegels} tegel(s) nodig. \n Je besteld er dus ${benodigdeTegels+1}`;
+      document.getElementById('resultaatPlint').innerText = `Je hebt ${benodigdeTegels} tegel(s) nodig.`;
+    }
+
+    function berekenDozen() {
+      const m2PerDoos = parseFloat(document.getElementById('m2PerDoos').value);
+      const m2Nodig = parseFloat(document.getElementById('m2Nodig').value);
+
+      if (isNaN(m2PerDoos) || isNaN(m2Nodig) || m2PerDoos <= 0) {
+        document.getElementById('resultaatDoos').innerText = "Vul geldige waardes in.";
+        return;
+      }
+
+      const dozen = Math.ceil(m2Nodig / m2PerDoos);
+      const totaalM2 = dozen * m2PerDoos;
+
+      document.getElementById('resultaatDoos').innerText = `Je hebt ${dozen} doos/dozen nodig (${totaalM2.toFixed(2)} m² in totaal).`;
     }
   </script>
 
